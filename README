@@ -1,0 +1,194 @@
+
+# To-Do List React Native 
+
+---
+
+## Instalação do Node.js
+
+- Baixe o **Node.js LTS** em [nodejs.org](https://nodejs.org)
+- Instale normalmente (o **NPM** já vem junto).
+
+---
+
+## Instalar o Expo CLI
+
+```
+npm install -g expo-cli
+```
+
+> O **Expo CLI** permite criar e rodar apps React Native de forma simples, sem precisar configurar o Android Studio agora.
+
+---
+
+## Criar um projeto com Expo
+
+```
+expo init to-do-list
+```
+
+- Escolha o template **`blank`**.
+- Entre na pasta:
+  ```
+  cd to-do-list
+  ```
+
+---
+
+##  Rodar o app pela primeira vez
+
+```
+npx expo start
+```
+
+- O Expo abrirá um **QR Code**.
+- Escaneie com o celular usando o **Expo Go**.
+- O app abre no seu celular em modo dev.
+
+---
+
+## Criar o To-Do List
+
+- **Criar estado `task` e `tasks`** com `useState`.
+- Funções principais:
+  ```js
+  const addTask = () => {
+    if (task.trim() === '') return;
+    const newTask = {
+      id: Date.now().toString(),
+      title: task,
+      done: false,
+    };
+    setTasks([...tasks, newTask]);
+    setTask('');
+  };
+
+  const toggleDone = (id) => {
+    const updatedTasks = tasks.map((t) =>
+      t.id === id ? { ...t, done: !t.done } : t
+    );
+    setTasks(updatedTasks);
+  };
+
+  const deleteTask = (id) => {
+    const updatedTasks = tasks.filter((t) => t.id !== id);
+    setTasks(updatedTasks);
+  };
+  ```
+
+- Renderizar lista com `FlatList`:
+  ```jsx
+  <FlatList
+    data={tasks}
+    keyExtractor={(item) => item.id}
+    renderItem={({ item }) => (
+      <TaskItem
+        task={item}
+        toggleDone={toggleDone}
+        deleteTask={deleteTask}
+      />
+    )}
+  />
+  ```
+
+---
+
+## Estrutura recomendada
+
+Organize em:
+```
+src/
+ ┣ components/
+ ┃ ┗ TaskItem.js
+ ┣ screens/
+ ┃ ┗ HomeScreen.js
+ ┗ App.js
+```
+
+---
+
+## Entendendo `useEffect`
+
+- `useEffect` é um **hook** para **efeitos colaterais**.
+- Roda **após o render**.
+- Exemplo:
+  ```js
+  useEffect(() => {
+    console.log('Executa ao montar ou mudar dependências.');
+  }, [tasks]);
+  ```
+
+---
+
+## Gerar o APK com EAS Build
+
+Instale o EAS CLI:
+```
+npm install -g eas-cli
+```
+
+Faça login:
+> Primeiro dever realizar a criação da conta em [expo.dev](https://expo.dev/).
+```
+eas login
+```
+
+Configure o EAS:
+```
+eas build:configure
+```
+
+Crie ou ajuste o arquivo `eas.json` na raiz:
+
+```json
+{
+  "cli": {
+    "version": ">= 16.13.3",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "android": {
+        "buildType": "apk"
+      },
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
+```
+
+Gere o APK de desenvolvimento:
+
+```
+eas build -p android --profile development
+```
+
+Gere o APK de produção (standalone, funciona offline):
+
+```
+eas build -p android --profile production
+```
+
+- Se pedir **gerar `keystore`**, pode responder **Yes** → o Expo cria automaticamente.
+- Quando a build terminar, **baixe o `.apk` pelo link**.
+
+---
+
+## Instale no celular
+
+- Transfira o `.apk` pro seu celular.
+- Clique para instalar.
+- Aceite permissões se necessário.
+
+**Pronto!** Seu app **roda offline** — sem precisar do `npx expo start`.
+
+---
